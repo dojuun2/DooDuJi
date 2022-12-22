@@ -1,6 +1,6 @@
 let preNum = 1;     // 이전 랜덤숫자
-let hideSec = 1500; // 두더지 나왔다가 들어갈때까지의 시간
-let showSec = 2200; // 두더지 들어갔다가 나올때까지의 시간
+let hideSec = 1500; // 1라운드 두더지 나왔다가 들어갈때까지의 시간
+let showSec = 2200; // 1라운드 두더지 들어갔다가 나올때까지의 시간
 let round = 1;  // 라운드 누적 변수
 let num = 17;    // img의 class를 증가시킬 변수
 var rowlevel = 4;
@@ -13,9 +13,11 @@ const $round = document.getElementById('round');
 $round.textContent = round + '라운드';
 
 
-let wingrade = 10; // 다음라운드 점수
+let winGrade = 100; // 다음라운드 점수
 
-let round_test = 4;
+let row = 4;     // 행
+let column = 4;     // 열
+
 
 // gradeSum : 누적 점수
 // ttime = 두더지 올라온 시점의 현재 시간
@@ -51,7 +53,7 @@ function getTime() {
 
 // 두더지 출력 이벤트
 function printImg(hideSecP) {
-    let ranNum = Math.floor(Math.random() * (round_test * round_test));  // 랜덤 숫자 (0~9)
+    let ranNum = Math.floor(Math.random() * (row * column));  // 랜덤 숫자 (0~9)
     if (ranNum === 0) { // 랜덤숫자가 0이면
         ranNum++;   // 0을 1로
     }
@@ -79,17 +81,17 @@ function startGame(hideSecP, showSecP) {
     if (confirm('게임 시작?')) {
         console.log(time);
         gradeSum = 0;
-        time = 10;
+        time = 60;
         inter_val();
         startGameInterval = setInterval(() => {
             console.log('호출');
             printImg(hideSecP);
-            if (time == 0 || gradeSum >= wingrade) {
+            if (time == 0 || gradeSum >= winGrade) {
                 stopGame();
                 winCheck();
             }
             // 게임 종료 이벤트
-            document.getElementById('stop').onclick =  function () {
+            document.getElementById('stop').onclick = function () {
                 if (confirm('게임을 종료하시겠습니까?')) {
                     clearInterval(startGameInterval);    // 반복 중단
                     alert('게임 종료!!');
@@ -107,24 +109,24 @@ function stopGame() {
     time = 0;
     document.querySelector(".timer").textContent = time;
 }
-function initRound(){
+function initRound() {
     gradeSum = 0;   // 점수 초기화
     hideSec = 1500; // 두더지 나왔다가 들어갈때까지의 시간 
     showSec = 2200; // 두더지 들어갔다가 나올때까지의 시간
-    if(round==2){
+    if (round == 2) {
         $map.deleteRow(-1);
-    }else if(round==3){
+    } else if (round == 3) {
         $map.deleteRow(-1);
         $map.deleteRow(-1);
     }
-    
+
     for (let $hole of $holes) {
         $hole.style.height = '50px';
     }
     for (let $cells of $td) {
         $cells.style.height = "150px";
     }
-    round=1;    // 라운드 초기화
+    round = 1;    // 라운드 초기화
     $round.textContent = round + '라운드';
 
 }
@@ -138,13 +140,14 @@ document.getElementById('start').addEventListener('click', function () {
 function nextRound() {
     console.log(time);
     round++;
+    row++;
+    console.log("행 수는?? ", row);
+    console.log("열 수는?? ", column);
+
     const $map = document.querySelector('.map');// 테이블
 
     const newRow = $map.insertRow();    // 행 추가
     for (let i = 0; i < rowlevel; i++) {
-        // const firstRow = $map.rows[i];
-        // const x = firstRow.insertCell(i);
-        // x.innerHTML='<img src="img/두더지.jpg" alt="두더지" class="item' + num + '"><div class="hole"></div>';
         const newCell = newRow.insertCell(i);
         newCell.innerHTML = '<img src="img/두더지.jpg" alt="두더지" class="item' + num + '"><div class="hole"></div>';
         num++;
@@ -187,9 +190,7 @@ function winCheck() {
         } else {
             if (confirm("다음라운드 가시겠습니까")) {
                 gradeSum = 0;
-                // round_test++;
                 printScore();
-                // rowlevel++;
                 nextRound();  // 새 행, 시간 단축
             } else {
                 stopGame();
@@ -238,7 +239,7 @@ function timeout() {
     // 화면에 타이머 출력
     time -= 1;
     document.querySelector(".timer").textContent = time;
-    if (time == 0 || gradeSum >= wingrade)
+    if (time == 0 || gradeSum >= winGrade)
         timer_stop();
 }
 
